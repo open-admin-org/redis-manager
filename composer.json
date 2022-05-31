@@ -1,0 +1,36 @@
+{
+    "name": "open-admin-ext/redis-manager",
+    "description": "Redis manager for open-admin",
+    "type": "library",
+    "keywords": ["open-admin", "redis", "manager"],
+    "homepage": "https://github.com/open-admin-org/redis-manager",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "sb | open-admin",
+            "email": "info@open-admin.org"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0",
+        "open-admin-org/open-admin": "~1.0",
+        "predis/predis": "~1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~6.0",
+        "laravel/laravel": "~5.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "OpenAdmin\\Admin\\RedisManager\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "OpenAdmin\\Admin\\RedisManager\\RedisManagerServiceProvider"
+            ]
+
+        }
+    }
+}
