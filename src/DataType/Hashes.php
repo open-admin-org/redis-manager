@@ -52,7 +52,7 @@ class Hashes extends DataType
         foreach ($value['keys'] as $field_key) {
             $field_value = $value[$i];
             $this->getConnection()->hset($key, $field_key, $field_value);
-            $i ++;
+            $i++;
         }
 
         if ($ttl > 0) {
@@ -83,7 +83,7 @@ class Hashes extends DataType
     public function form()
     {
         $this->form->hidden('conn')->value($this->conn);
-        $this->form->hidden('type')->value("hash");
+        $this->form->hidden('type')->value('hash');
         $this->form->text('key');
         $this->form->number('ttl')->default(-1);
         $this->form->keyValue('value');

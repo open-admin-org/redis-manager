@@ -3,8 +3,8 @@
 namespace OpenAdmin\Admin\RedisManager\DataType;
 
 use Illuminate\Redis\Connections\Connection;
-use OpenAdmin\Admin\Widgets\Form;
 use Illuminate\Support\Arr;
+use OpenAdmin\Admin\Widgets\Form;
 
 abstract class DataType
 {
@@ -14,7 +14,7 @@ abstract class DataType
     protected $connection;
 
     /**
-     * @var Array
+     * @var array
      */
     public $data;
 
@@ -38,11 +38,12 @@ abstract class DataType
         if (!empty($this->data)) {
             //$this->form->attribute("method", "put");
             foreach ($this->form->fields() as $field) {
-                if ($field->getId() == "key") {
+                if ($field->getId() == 'key') {
                     $field->disable();
                 }
             }
         }
+
         return $this->form->render();
     }
 
@@ -80,6 +81,7 @@ abstract class DataType
         // ok a bit dirty but it works :-)
         $key = Arr::get($params, 'key');
         $this->getConnection()->del($key);
+
         return $this->store($params);
     }
 
@@ -133,7 +135,7 @@ abstract class DataType
     }
 
     /**
-     * Set form data
+     * Set form data.
      *
      * @param array $data
      *
@@ -147,7 +149,7 @@ abstract class DataType
         }
 
         $this->form->action(route('redis-update-key'));
-        $this->form->attribute("method", "post");
+        $this->form->attribute('method', 'post');
 
         return $this;
     }

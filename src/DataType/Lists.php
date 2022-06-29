@@ -45,7 +45,6 @@ class Lists extends DataType
     }
     */
 
-
     /**
      * {@inheritdoc}
      */
@@ -99,11 +98,10 @@ LUA;
         return $this->getConnection()->eval($lua, 1, $key, $index);
     }
 
-
     public function form()
     {
         $this->form->hidden('conn')->value($this->conn);
-        $this->form->hidden('type')->value("list");
+        $this->form->hidden('type')->value('list');
         $this->form->text('key');
         $this->form->number('ttl')->default(-1);
         $this->form->list('value')->sortable();

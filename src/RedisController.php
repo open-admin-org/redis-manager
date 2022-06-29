@@ -2,11 +2,11 @@
 
 namespace OpenAdmin\Admin\RedisManager;
 
-use OpenAdmin\Admin\Facades\Admin;
-use OpenAdmin\Admin\Layout\Content;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Str;
+use OpenAdmin\Admin\Facades\Admin;
+use OpenAdmin\Admin\Layout\Content;
 
 class RedisController extends BaseController
 {
@@ -49,7 +49,7 @@ class RedisController extends BaseController
 
             $vars = $manager->vars();
             $vars['form'] = $this->form($request);
-            $vars['form_title'] = __("Edit");
+            $vars['form_title'] = __('Edit');
 
             if (empty($this->data)) {
                 $view = 'open-admin-redis-manager::edit.nil';
@@ -80,7 +80,7 @@ class RedisController extends BaseController
             $manager = $this->manager();
             $vars = $manager->vars();
             $vars['form'] = $this->form($request);
-            $vars['form_title'] = __("Create");
+            $vars['form_title'] = __('Create');
 
             $content->header('Redis manager');
             $content->description('Connections');
@@ -89,7 +89,7 @@ class RedisController extends BaseController
                 ['text' => 'Create']
             );
             //$content->body(view($view, $vars));
-            $content->body(view("open-admin-redis-manager::form", $vars));
+            $content->body(view('open-admin-redis-manager::form', $vars));
         });
     }
 
@@ -126,6 +126,7 @@ class RedisController extends BaseController
     {
         $type = $request->type;
         admin_toastr('Saved', 'success');
+
         return $this->manager()->{$type}()->store($request->all());
     }
 
@@ -157,6 +158,7 @@ class RedisController extends BaseController
     public function remove(Request $request)
     {
         $type = $request->get('type');
+
         return $this->manager()->{$type}()->remove($request->all());
     }
 
@@ -168,6 +170,7 @@ class RedisController extends BaseController
     public function update(Request $request)
     {
         admin_toastr('Saved', 'success');
+
         return $this->manager()->update($request);
     }
 
