@@ -3,6 +3,8 @@
 namespace OpenAdmin\Admin\RedisManager\DataType;
 
 use Illuminate\Redis\Connections\Connection;
+use OpenAdmin\Admin\Widgets\Form;
+use Illuminate\Support\Arr;
 
 abstract class DataType
 {
@@ -12,6 +14,11 @@ abstract class DataType
     protected $connection;
 
     /**
+     * @var Array
+     */
+    public $data;
+
+    /**
      * DataType constructor.
      *
      * @param $connection
@@ -19,6 +26,24 @@ abstract class DataType
     public function __construct($connection)
     {
         $this->connection = $connection;
+        $this->conn = $connection->getName();
+        $this->form = new Form();
+
+        $this->form->action(route('redis-store-key'));
+    }
+
+    public function getForm()
+    {
+        $this->form();
+        if (!empty($this->data)) {
+            //$this->form->attribute("method", "put");
+            foreach ($this->form->fields() as $field) {
+                if ($field->getId() == "key") {
+                    $field->disable();
+                }
+            }
+        }
+        return $this->form->render();
     }
 
     /**
@@ -43,14 +68,29 @@ abstract class DataType
      *
      * @return mixed
      */
-    abstract public function update(array $params);
+    abstract public function store(array $params);
 
     /**
      * @param array $params
      *
      * @return mixed
      */
-    abstract public function store(array $params);
+    public function update(array $params)
+    {
+        // ok a bit dirty but it works :-)
+        $key = Arr::get($params, 'key');
+        $this->getConnection()->del($key);
+        return $this->store($params);
+    }
+
+    /**
+     * @param none
+     *
+     * @return form
+     */
+    public function form()
+    {
+    }
 
     /**
      * Returns the remaining time to live of a key that has a timeout.
@@ -85,5 +125,30 @@ abstract class DataType
         } else {
             $this->getConnection()->persist($key);
         }
+    }
+
+    public function prepareData($data)
+    {
+        return $data;
+    }
+
+    /**
+     * Set form data
+     *
+     * @param array $data
+     *
+     * @return void
+     */
+    public function setData($data = false)
+    {
+        if ($data) {
+            $this->data = $this->prepareData($data);
+            $this->form->fill($this->data);
+        }
+
+        $this->form->action(route('redis-update-key'));
+        $this->form->attribute("method", "post");
+
+        return $this;
     }
 }

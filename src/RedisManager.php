@@ -13,9 +13,9 @@ use Illuminate\Http\Request;
 use Illuminate\Redis\Connections\Connection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Redis;
 use Predis\Collection\Iterator\Keyspace;
-use Predis\Pipeline\Pipeline;
 
 /**
  * Class RedisManager.
@@ -57,6 +57,11 @@ class RedisManager extends Extension
     protected $connection;
 
     /**
+     * @var string
+     */
+    protected $connection_name;
+
+    /**
      * Get instance of redis manager.
      *
      * @param string $connection
@@ -72,14 +77,26 @@ class RedisManager extends Extension
         return static::$instance;
     }
 
+
     /**
      * RedisManager constructor.
      *
      * @param string $connection
      */
-    public function __construct($connection = 'default')
+    public function __construct()
     {
-        $this->connection = $connection;
+        $this->connection = request()->get('conn', 'default');
+        $this->prefix = config("database.redis.options.prefix");
+    }
+
+    public function vars()
+    {
+        return [
+            'conn'        => $this->connection,
+            'prefix'      => $this->prefix,
+            'info'        => $this->getInformation(),
+            'connections' => $this->getConnections(),
+        ];
     }
 
     /**
@@ -161,6 +178,16 @@ class RedisManager extends Extension
     }
 
     /**
+     * Get key without pref.
+     *
+     * @return string
+     */
+    public function keyNoPrefix($key)
+    {
+        return Str::replace($this->prefix, "", $key);
+    }
+
+    /**
      * Scan keys in redis by giving pattern.
      *
      * @param string $pattern
@@ -172,27 +199,14 @@ class RedisManager extends Extension
     {
         $client = $this->getConnection();
         $keys = [];
-
-        foreach (new Keyspace($client->client(), $pattern) as $item) {
-            $keys[] = $item;
-
-            if (count($keys) == $count) {
-                break;
-            }
+        $pattern = $this->prefix.$pattern;
+        foreach (new Keyspace($client->client(), $pattern) as $key) {
+            $key = $this->keyNoPrefix($key);
+            $type = (string)$client->type($key);
+            $ttl = $client->ttl($key);
+            $keys[] = compact('key', 'type', 'ttl');
         }
-
-        $script = <<<'LUA'
-        local type = redis.call('type', KEYS[1])
-        local ttl = redis.call('ttl', KEYS[1])
-
-        return {KEYS[1], type, ttl}
-LUA;
-
-        return $client->pipeline(function (Pipeline $pipe) use ($keys, $script) {
-            foreach ($keys as $key) {
-                $pipe->eval($script, 1, $key);
-            }
-        });
+        return $keys;
     }
 
     /**
@@ -212,7 +226,6 @@ LUA;
 
         /** @var DataType $class */
         $class = $this->{$type}();
-
         $value = $class->fetch($key);
         $ttl = $class->ttl($key);
 
@@ -234,9 +247,11 @@ LUA;
         /** @var DataType $class */
         $class = $this->{$type}();
 
-        $class->update($request->all());
+        $res = $class->update($request->all());
 
         $class->setTtl($key, $request->get('ttl'));
+
+        return $res;
     }
 
     /**
@@ -276,6 +291,6 @@ LUA;
      */
     public static function typeColor($type)
     {
-        return Arr::get(static::$typeColor, $type, 'default');
+        return Arr::get(static::$typeColor, $type, 'secondary');
     }
 }

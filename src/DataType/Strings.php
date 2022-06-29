@@ -2,6 +2,8 @@
 
 namespace OpenAdmin\Admin\RedisManager\DataType;
 
+use Illuminate\Support\Arr;
+
 class Strings extends DataType
 {
     /**
@@ -17,7 +19,7 @@ class Strings extends DataType
      */
     public function update(array $params)
     {
-        $this->store($params);
+        return $this->store($params);
     }
 
     /**
@@ -25,9 +27,9 @@ class Strings extends DataType
      */
     public function store(array $params)
     {
-        $key = array_get($params, 'key');
-        $value = array_get($params, 'value');
-        $ttl = array_get($params, 'ttl');
+        $key = Arr::get($params, 'key');
+        $value = Arr::get($params, 'value');
+        $ttl = Arr::get($params, 'ttl');
 
         $this->getConnection()->set($key, $value);
 
@@ -36,7 +38,16 @@ class Strings extends DataType
         }
 
         return redirect(route('redis-index', [
-            'conn' => request('conn'),
+            'conn' => request()->conn,
         ]));
+    }
+
+    public function form()
+    {
+        $this->form->hidden('conn')->value($this->conn);
+        $this->form->hidden('type')->value("string");
+        $this->form->text('key');
+        $this->form->text('value');
+        $this->form->number('ttl')->default(-1);
     }
 }

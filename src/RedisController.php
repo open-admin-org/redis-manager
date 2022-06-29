@@ -18,25 +18,18 @@ class RedisController extends BaseController
     public function index()
     {
         return Admin::content(function (Content $content) {
+            $manager = $this->manager();
+            $vars = $manager->vars();
+
+            $vars['keys'] = $manager->scan(
+                request('pattern', '*'),
+                request('count', 50)
+            );
+
             $content->header('Redis manager');
             $content->description('Connections');
             $content->breadcrumb(['text' => 'Redis manager']);
-
-            $connection = request('conn', 'default');
-
-            $manager = $this->manager();
-//dd($manager->getConnections());
-            $variables = [
-                'conn'        => $connection,
-                'info'        => $manager->getInformation(),
-                'connections' => $manager->getConnections(),
-                'keys'        => $manager->scan(
-                    request('pattern', '*'),
-                    request('count', 50)
-                ),
-            ];
-
-            $content->body(view('open-admin-redis-manager::index', $variables));
+            $content->body(view('open-admin-redis-manager::index', $vars));
         });
     }
 
@@ -50,30 +43,27 @@ class RedisController extends BaseController
     public function edit(Request $request)
     {
         return Admin::content(function (Content $content) use ($request) {
-            $connection = $request->get('conn', 'default');
-
             $manager = $this->manager();
 
-            $variables = [
-                'conn'        => $connection,
-                'info'        => $manager->getInformation(),
-                'connections' => $manager->getConnections(),
-                'data'        => $manager->fetch($request->get('key')),
-            ];
+            $this->data = $manager->fetch($request->get('key'));
 
-            if (empty($variables['data'])) {
+            $vars = $manager->vars();
+            $vars['form'] = $this->form($request);
+            $vars['form_title'] = __("Edit");
+
+            if (empty($this->data)) {
                 $view = 'open-admin-redis-manager::edit.nil';
             } else {
-                $view = 'open-admin-redis-manager::edit.'.$variables['data']['type'];
+                $view = 'open-admin-redis-manager::form';
             }
 
             $content->header('Redis manager');
             $content->description('Connections');
             $content->breadcrumb(
-                ['text' => 'Redis manager', 'url' => route('redis-index', ['conn' => $connection])],
+                ['text' => 'Redis manager', 'url' => route('redis-index', ['conn' => $vars['conn']])],
                 ['text' => 'Edit']
             );
-            $content->body(view($view, $variables));
+            $content->body(view($view, $vars));
         });
     }
 
@@ -87,27 +77,44 @@ class RedisController extends BaseController
     public function create(Request $request)
     {
         return Admin::content(function (Content $content) use ($request) {
-            $connection = $request->get('conn', 'default');
-
             $manager = $this->manager();
-
-            $vars = [
-                'conn'        => $connection,
-                'info'        => $manager->getInformation(),
-                'connections' => $manager->getConnections(),
-                'type'        => $request->get('type'),
-            ];
-
-            $view = 'open-admin-redis-manager::create.'.$vars['type'];
+            $vars = $manager->vars();
+            $vars['form'] = $this->form($request);
+            $vars['form_title'] = __("Create");
 
             $content->header('Redis manager');
             $content->description('Connections');
             $content->breadcrumb(
-                ['text' => 'Redis manager', 'url' => route('redis-index', ['conn' => $connection])],
+                ['text' => 'Redis manager', 'url' => route('redis-index', ['conn' => $vars['conn']])],
                 ['text' => 'Create']
             );
-            $content->body(view($view, $vars));
+            //$content->body(view($view, $vars));
+            $content->body(view("open-admin-redis-manager::form", $vars));
         });
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return mixed
+     */
+    public function form(Request $request)
+    {
+        if (!empty($this->data)) {
+            $type = $this->data['type'];
+        } else {
+            $type = $request->get('type');
+        }
+
+        if (!empty($type)) {
+            $this->dataType = $this->manager()->{$type}();
+
+            if (!empty($this->data)) {
+                $this->dataType->setData($this->data);
+            }
+
+            return $this->dataType->getForm();
+        }
     }
 
     /**
@@ -117,8 +124,8 @@ class RedisController extends BaseController
      */
     public function store(Request $request)
     {
-        $type = $request->get('type');
-
+        $type = $request->type;
+        admin_toastr('Saved', 'success');
         return $this->manager()->{$type}()->store($request->all());
     }
 
@@ -150,7 +157,6 @@ class RedisController extends BaseController
     public function remove(Request $request)
     {
         $type = $request->get('type');
-
         return $this->manager()->{$type}()->remove($request->all());
     }
 
@@ -161,6 +167,7 @@ class RedisController extends BaseController
      */
     public function update(Request $request)
     {
+        admin_toastr('Saved', 'success');
         return $this->manager()->update($request);
     }
 
@@ -230,7 +237,7 @@ class RedisController extends BaseController
     protected function renderException(\Exception $exception)
     {
         return sprintf(
-            "<div class='callout callout-warning'><i class='icon fa fa-warning'></i>&nbsp;&nbsp;&nbsp;%s</div>",
+            "<div class='callout callout-warning'><i class='icon-exclamation-triangle'></i>&nbsp;&nbsp;&nbsp;%s</div>",
             str_replace("\n", '<br />', $exception->getMessage())
         );
     }

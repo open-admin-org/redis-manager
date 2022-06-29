@@ -1,44 +1,67 @@
-<div class="row">
+<div class="row redis-manager">
+    <style>
+        .redis-manager .btn-card-tool .icon-minus,
+        .redis-manager .btn-card-tool.collapsed .icon-plus{
+            display:inline-block;
+        }
+        .redis-manager .btn-card-tool.collapsed .icon-minus,
+        .redis-manager .btn-card-tool .icon-plus{
+            display:none;
+        }
+        .redis-manager .nav-link{
+            border-left:3px solid transparent;
+        }
+        .redis-manager .nav-link.active{
+            border-left:3px solid var(--bs-primary);
+            background: rgba(0,0,0,0.02);
+        }
+        .redis-manager .card-footer {
+            margin-bottom:0;
+        }
+    </style>
 
     <div class="col-md-3">
-        <div class="box with-border">
-            <div class="box-header with-border">
-                <h3 class="box-title">Connections</h3>
+        <div class="card with-border">
+            <div class="card-header with-border">
+                <h3 class="card-title">Connections</h3>
 
-                <div class="box-tools">
-                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                    <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-card-tool" data-bs-toggle="collapse" data-bs-target="#connections-body" >
+                        <i class="icon-minus"></i>
+                        <i class="icon-plus"></i>
+                    </button>
                 </div>
             </div>
-            <div class="box-body no-padding">
-                <ul class="nav nav-pills nav-stacked">
+            <div class="card-body no-padding collapse show p-0" id="connections-body">
+                <ul class="nav flex-column">
                     @foreach($connections as $name => $connection)
 						@if(!empty($connection['host']))
-                        <li @if($name == $conn)class="active"@endif>
-                            <a href=" {{ route('redis-index', ['conn' => $name]) }}">
-                                <i class="fa fa-database"></i> {{ $name }}  &nbsp;&nbsp;<small>[{{ $connection['host'].':'.$connection['port'] }}]</small>
+                        <li class="nav-item">
+                            <a class="nav-link @if($name == $conn)active @endif" href=" {{ route('redis-index', ['conn' => $name]) }}">
+                                <i class="icon-database"></i> {{ $name }}  &nbsp;&nbsp;<small>[{{ $connection['host'].':'.$connection['port'] }}]</small>
                             </a>
                         </li>
 						@endif
                     @endforeach
                 </ul>
             </div>
-            <!-- /.box-body -->
+            <!-- /.card-body -->
         </div>
 
-        <div class="box box-default collapsed-box">
-            <div class="box-header with-border">
-                <h3 class="box-title">Connection <small><code>{{ $conn }}</code></small></h3>
+        <div class="card card-default collapsed-card mt-4">
+            <div class="card-header with-border">
+                <h3 class="card-title">Connection <small><code>{{ $conn }}</code></small></h3>
 
-                <div class="box-tools pull-right">
-                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                <div class="card-tools pull-right">
+                    <button type="button" class="btn btn-card-tool" data-bs-toggle="collapse" data-bs-target="#connection-details" >
+                        <i class="icon-minus"></i>
+                        <i class="icon-plus"></i>
                     </button>
-                    <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
                 </div>
             </div>
 
-            <!-- /.box-header -->
-            <div class="box-body">
+            <!-- /.card-header -->
+            <div class="card-body collapse show p-0" id="connection-details">
                 <div class="table-responsive">
                     <table class="table table-striped">
                         @foreach($connections[$conn] as $name => $value)
@@ -51,54 +74,56 @@
                 </div>
                 <!-- /.table-responsive -->
             </div>
-            <!-- /.box-body -->
+            <!-- /.card-body -->
         </div>
 
-        <div class="box with-border">
-            <div class="box-header with-border">
-                <h3 class="box-title">Information</h3>
+        <div class="card with-border mt-4">
+            <div class="card-header with-border">
+                <h3 class="card-title">Information</h3>
+
+                <div class="card-tools pull-right">
+                    <button type="button" class="btn btn-card-tool" data-bs-toggle="collapse" data-bs-target="#connection-info" >
+                        <i class="icon-minus"></i>
+                        <i class="icon-plus"></i>
+                    </button>
+                </div>
             </div>
-            <!-- /.box-header -->
-            <div class="box-body no-padding">
-                <div class="box-group" id="accordion">
-                    <!-- we are adding the .panel class so bootstrap.js collapse plugin detects it -->
+            <!-- /.card-header -->
+            <div class="card-body collapse show p-0" id="connection-info">
+                <div class="accordion accordion-flush" id="accordion">
 
                     @foreach($info as $part => $detail)
-                        <div class="panel box box-default no-border">
-                            <div class="box-header">
-                            <span class="box-title">
-                                <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ $part }}" aria-expanded="false" class="collapsed" style="font-size: 14px;">
-                                    {{ $part }}
-                                </a>
-                            </span>
-                            </div>
-                            <div id="collapse{{ $part }}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
-                                <div class="box-body no-padding no-border">
-                                    <div class="table-responsive">
-                                        <table class="table table-striped no-margin">
-                                            @foreach($detail as $key => $value)
-                                                <tr>
-                                                    <td>{{ $key }}</td>
-                                                    <td>
-                                                        @if(is_array($value))
-                                                            <pre><code>{{ json_encode($value, JSON_PRETTY_PRINT) }}</code></pre>
-                                                        @else
-                                                            <span class="label label-primary">{{ $value }}</span>
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </table>
-                                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $part }}" aria-expanded="true" aria-controls="collapseOne">
+                            {{ $part }}
+                        </button>
+                        </h2>
+                        <div id="collapse{{ $part }}" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordion">
+                            <div class="accordion-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-striped no-margin">
+                                        @foreach($detail as $key => $value)
+                                            <tr>
+                                                <td>{{ $key }}</td>
+                                                <td>
+                                                    @if(is_array($value))
+                                                        <pre><code>{{ json_encode($value, JSON_PRETTY_PRINT) }}</code></pre>
+                                                    @else
+                                                        <span class="label label-primary">{{ $value }}</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </table>
                                 </div>
                             </div>
                         </div>
+                    </div>
                     @endforeach
-
-
                 </div>
             </div>
-            <!-- /.box-body -->
+            <!-- /.card-body -->
         </div>
 
     </div>
