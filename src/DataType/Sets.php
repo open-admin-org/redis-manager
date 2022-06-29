@@ -78,7 +78,7 @@ class Sets extends DataType
     public function form()
     {
         $this->form->hidden('conn')->value($this->conn);
-        $this->form->hidden('type')->value("set");
+        $this->form->hidden('type')->value('set');
         $this->form->text('key');
         $this->form->number('ttl')->default(-1);
         $this->form->list('value');

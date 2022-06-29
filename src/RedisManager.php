@@ -2,6 +2,12 @@
 
 namespace OpenAdmin\Admin\RedisManager;
 
+use Illuminate\Http\Request;
+use Illuminate\Redis\Connections\Connection;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Str;
 use OpenAdmin\Admin\Extension;
 use OpenAdmin\Admin\RedisManager\DataType\DataType;
 use OpenAdmin\Admin\RedisManager\DataType\Hashes;
@@ -9,12 +15,6 @@ use OpenAdmin\Admin\RedisManager\DataType\Lists;
 use OpenAdmin\Admin\RedisManager\DataType\Sets;
 use OpenAdmin\Admin\RedisManager\DataType\SortedSets;
 use OpenAdmin\Admin\RedisManager\DataType\Strings;
-use Illuminate\Http\Request;
-use Illuminate\Redis\Connections\Connection;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Redis;
 use Predis\Collection\Iterator\Keyspace;
 
 /**
@@ -77,7 +77,6 @@ class RedisManager extends Extension
         return static::$instance;
     }
 
-
     /**
      * RedisManager constructor.
      *
@@ -86,7 +85,7 @@ class RedisManager extends Extension
     public function __construct()
     {
         $this->connection = request()->get('conn', 'default');
-        $this->prefix = config("database.redis.options.prefix");
+        $this->prefix = config('database.redis.options.prefix');
     }
 
     public function vars()
@@ -184,7 +183,7 @@ class RedisManager extends Extension
      */
     public function keyNoPrefix($key)
     {
-        return Str::replace($this->prefix, "", $key);
+        return Str::replace($this->prefix, '', $key);
     }
 
     /**
@@ -202,10 +201,11 @@ class RedisManager extends Extension
         $pattern = $this->prefix.$pattern;
         foreach (new Keyspace($client->client(), $pattern) as $key) {
             $key = $this->keyNoPrefix($key);
-            $type = (string)$client->type($key);
+            $type = (string) $client->type($key);
             $ttl = $client->ttl($key);
             $keys[] = compact('key', 'type', 'ttl');
         }
+
         return $keys;
     }
 

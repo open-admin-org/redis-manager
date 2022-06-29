@@ -35,7 +35,6 @@ class SortedSets extends DataType
     }
     */
 
-
     /**
      * {@inheritdoc}
      */
@@ -70,19 +69,21 @@ class SortedSets extends DataType
     {
         $key = Arr::get($params, 'key');
         $member = Arr::get($params, 'member');
+
         return $this->getConnection()->zrem($key, $member);
     }
 
     public function prepareData($data)
     {
         $data['value'] = array_flip($data['value']);
+
         return $data;
     }
 
     public function form()
     {
         $this->form->hidden('conn')->value($this->conn);
-        $this->form->hidden('type')->value("zset");
+        $this->form->hidden('type')->value('zset');
         $this->form->text('key');
         $this->form->number('ttl')->default(-1);
         $this->form->list('value')->sortable();

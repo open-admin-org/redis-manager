@@ -45,7 +45,7 @@ class Strings extends DataType
     public function form()
     {
         $this->form->hidden('conn')->value($this->conn);
-        $this->form->hidden('type')->value("string");
+        $this->form->hidden('type')->value('string');
         $this->form->text('key');
         $this->form->text('value');
         $this->form->number('ttl')->default(-1);
