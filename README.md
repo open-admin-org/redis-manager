@@ -20,8 +20,15 @@ $ composer require open-admin-ext/redis-manager
 
 $ php artisan admin:import redis-manager
 ```
-
 Open `http://your-host/admin/redis` in your browser.
+
+## Debugging
+When error: `Class "Redis" not found` try changing to predis instead.
+
+in `config/database.php` or .env set REDIS_CLIENT to 'predis';
+```php
+   'client' => env('REDIS_CLIENT', 'predis'),
+```
 
 License
 ------------

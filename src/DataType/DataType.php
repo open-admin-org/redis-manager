@@ -28,7 +28,6 @@ abstract class DataType
         $this->connection = $connection;
         $this->conn = $connection->getName();
         $this->form = new Form();
-
         $this->form->action(route('redis-store-key'));
     }
 
@@ -39,7 +38,7 @@ abstract class DataType
             //$this->form->attribute("method", "put");
             foreach ($this->form->fields() as $field) {
                 if ($field->getId() == 'key') {
-                    $field->disable();
+                    $field->readonly();
                 }
             }
         }
