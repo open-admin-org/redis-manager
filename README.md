@@ -1,7 +1,7 @@
 Redis manager for open-admin
 ========================
 
-[![StyleCI](https://styleci.io/repos/508859240/shield?branch=master)](https://styleci.io/repos/508859240)
+[![StyleCI](https://styleci.io/repos/508859240/shield?branch=main)](https://styleci.io/repos/508859240)
 [![Packagist](https://img.shields.io/github/license/open-admin-org/redis-manager.svg?style=flat-square&color=brightgreen)](https://packagist.org/packages/open-admin-ext/redis-manager)
 [![Total Downloads](https://img.shields.io/packagist/dt/open-admin-ext/redis-manager.svg?style=flat-square)](https://packagist.org/packages/open-admin-ext/redis-manager)
 [![Pull request welcome](https://img.shields.io/badge/pr-welcome-green.svg?style=flat-square)]()
